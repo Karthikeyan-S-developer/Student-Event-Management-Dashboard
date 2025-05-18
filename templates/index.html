@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Participation Plot</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 0; /* Remove the gap between the input and plot sections */
+            background-color: #ffffff; /* Set the background to white */
+            font-family: Arial, sans-serif;
+        }
+
+        .form-container {
+            background-color: #fff; /* Keep the form background white */
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-width: 400px;
+            margin-left: 20px;
+        }
+
+        .form-container h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .form-container form label {
+            font-size: 16px;
+            color: #555;
+            margin-top: 10px;
+        }
+
+        .form-container form input,
+        .form-container form select,
+        .form-container form button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .form-container form button {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .form-container form button:hover {
+            background-color: #45a049;
+        }
+
+        .plot-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #fff; /* Keep the plot container background white */
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .plot-container h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        #plot {
+            display: none; /* Initially hide the image */
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        #error {
+            color: red;
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        @media (max-width: 900px) {
+            body {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto;
+            }
+
+            .form-container,
+            .plot-container {
+                max-width: 100%;
+                margin: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h1>Student Event Data</h1>
+        <form id="plotForm">
+            <label for="roll_no">Roll Number:</label>
+            <input type="text" id="roll_no" name="roll_no" placeholder="Enter roll number or 'all'">
+
+            <label for="mode">Mode:</label>
+            <select id="mode" name="mode">
+                <option value="Both">Both</option>
+                <option value="Online">Online</option>
+                <option value="Offline">Offline</option>
+            </select>
+
+            <label for="start_date">Start Date:</label>
+            <input type="date" id="start_date" name="start_date">
+
+            <label for="end_date">End Date:</label>
+            <input type="date" id="end_date" name="end_date">
+
+            <button type="submit">Update Plot</button>
+        </form>
+    </div>
+
+    <div class="plot-container">
+        <h2>Event Participation Plot</h2>
+        <!-- Initially no image will be displayed -->
+        <img id="plot" alt="Event Participation Plot">
+        <div id="error"></div>
+    </div>
+
+    <script>
+        document.getElementById('plotForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+
+            fetch('/update_plot', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.plot_url) {
+                    const plotImage = document.getElementById('plot');
+                    plotImage.src = 'data:image/png;base64,' + data.plot_url;
+                    plotImage.style.display = 'block';  // Display the image
+                    document.getElementById('error').textContent = '';  // Clear any previous error message
+                } else if (data.error) {
+                    document.getElementById('error').textContent = data.error;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('error').textContent = 'An error occurred while updating the plot.';
+            });
+        });
+    </script>
+</body>
+</html>
