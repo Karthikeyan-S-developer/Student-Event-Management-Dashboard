@@ -1,0 +1,8 @@
+flask
+matplotlib.pyplot
+numpy
+pandas
+mysql.connector
+base64
+io
+datetime
