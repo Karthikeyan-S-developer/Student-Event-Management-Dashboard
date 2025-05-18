@@ -18,7 +18,7 @@ def connect_db():
         return mysql.connector.connect(
             host="localhost",
             user="root",    # Replace with your SQL username
-            password="SKy@1234",  # Replace with your SQL password 
+            password="password",  # Replace with your SQL password 
             database="Student_details"
         )
     except mysql.connector.Error as err:
